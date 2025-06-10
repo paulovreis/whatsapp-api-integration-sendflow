@@ -1,0 +1,70 @@
+version: '3.9'
+services:
+  evolution-api:
+    container_name: evolution_api
+    image: atendai/evolution-api:v2.2.0
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - evolution_instances:/evolution/instances
+    depends_on:
+      - mysql
+    networks:
+      - evolution-net
+    
+  mysql:
+    container_name: mysql
+    image: percona/percona-server:8.0
+    networks:
+      - evolution-net
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=evolution
+      - TZ=America/Bahia
+    volumes:
+      - mysql_data:/var/lib/mysql
+    expose:
+      - 3306
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    networks:
+      - evolution-net
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=PASSWORD
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - 4000:80
+    links:
+      - mysql
+  
+  redis:
+    image: redis:latest
+    networks:
+      - evolution-net
+    container_name: redis
+    command: >
+      redis-server --port 6379 --appendonly yes
+    volumes:
+      - evolution_redis:/data
+    ports:
+      - 6379:6379
+
+volumes:
+  evolution_instances:
+  mysql_data:
+  pgadmin_data:
+  evolution_redis:
+
+networks:
+  evolution-net:
+    name: evolution-net
+    driver: bridge
