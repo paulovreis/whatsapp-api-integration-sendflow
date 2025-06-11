@@ -1,0 +1,22 @@
+{
+  "name": "whatsapp-api-integration-sendflow-api",
+  "version": "1.0.0",
+  "description": "Servidor webhook para integração com Evolution API.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "tunnel": "npx lt --port 3000 --subdomain whatsapp-api-integration-sendflow"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "express-validator": "^7.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
