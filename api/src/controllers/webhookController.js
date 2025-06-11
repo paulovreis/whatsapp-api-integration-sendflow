@@ -17,7 +17,7 @@ class WebhookController {
 
 			const text = "Webhook recebido, mensagem enviada com sucesso!";
 			const data = {
-				number: "5577981365540", //req.body.data.number,
+				number: process.env.TEST_PHONE, //req.body.data.number,
 				text: text,
 			};
 			if (!data.number || !data.text) {
