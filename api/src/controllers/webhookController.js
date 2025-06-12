@@ -16,6 +16,12 @@ class WebhookController {
 			const apiKey = process.env.AUTHENTICATION_API_KEY;
 			const evolutionApiUrl = `${this.evolutionApiUrl}/message/sendText/${instance}`;
 
+			// Message delay
+			const minDelay = 4000; // 4 segundos
+			const maxDelay = 20000; // 20 segundos
+			const delay =
+				Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+
 			// Exemplo de mensagem formatada para WhatsApp
 			const text = `Seja bem-vindo(a) a minha comunidade vip!!! Saiba que sua presença aqui é muito especial. 🎉😃
 
@@ -28,6 +34,8 @@ E caso tenha qualquer dúvida sobre nossas ações é só falar aqui. Tamo junto
 			const data = {
 				number: process.env.TEST_PHONE, //req.body.data.number,
 				text: text,
+				delay: delay, // Tempo de espera aleatório entre 4 e 20 segundos
+				linkPreview: true, // Habilita a visualização de links
 			};
 			if (!data.number || !data.text) {
 				console.error("Campos 'number' e 'text' são obrigatórios.");
