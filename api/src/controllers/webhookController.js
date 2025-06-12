@@ -17,14 +17,13 @@ class WebhookController {
 			const evolutionApiUrl = `${this.evolutionApiUrl}/message/sendText/${instance}`;
 
 			// Exemplo de mensagem formatada para WhatsApp
-			const text = `*Webhook Recebido!*
+			const text = `Seja bem-vindo(a) a minha comunidade vip!!! Saiba que sua presença aqui é muito especial. 🎉😃
 
-Mensagem enviada com sucesso! ✅
+👀 Fique de olho no grupo de avisos, é por lá que Hélder vai mandar todas informações sobre os nossos sorteios. 
 
-_Recebido em:_ ${new Date().toLocaleString()}
+Já aproveito também pra te enviar o link da ação gratuita da Fan 0 KM, não se esqueça se você ganhar e não estiver mais no grupo será desclassificado automaticamente. 👉🏼 https://heldersorteios.com/campanha/hondafan25gratis
 
-----------------------
-*Dúvidas?* Responda este número.`;
+E caso tenha qualquer dúvida sobre nossas ações é só falar aqui. Tamo junto! ❤️🍀`;
 
 			const data = {
 				number: process.env.TEST_PHONE, //req.body.data.number,
