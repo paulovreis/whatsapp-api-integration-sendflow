@@ -12,11 +12,20 @@ class WebhookController {
 		try {
 			console.log("Received webhook:", req.body);
 			// Ajuste para enviar para a rota /message/sendText/Teste
-			const instance = process.env.INSTANCE
+			const instance = process.env.INSTANCE;
 			const apiKey = process.env.AUTHENTICATION_API_KEY;
 			const evolutionApiUrl = `${this.evolutionApiUrl}/message/sendText/${instance}`;
 
-			const text = "Webhook recebido, mensagem enviada com sucesso!";
+			// Exemplo de mensagem formatada para WhatsApp
+			const text = `*Webhook Recebido!*
+
+Mensagem enviada com sucesso! ✅
+
+_Recebido em:_ ${new Date().toLocaleString()}
+
+----------------------
+*Dúvidas?* Responda este número.`;
+
 			const data = {
 				number: process.env.TEST_PHONE, //req.body.data.number,
 				text: text,
