@@ -58,6 +58,20 @@ services:
     ports:
       - 6379:6379
 
+  webhook-api:
+    container_name: webhook_api
+    build:
+      context: ./api
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - evolution-api
+    networks:
+      - evolution-net
+
 volumes:
   evolution_instances:
   mysql_data:
