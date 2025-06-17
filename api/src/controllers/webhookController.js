@@ -12,7 +12,8 @@ class WebhookController {
 		try {
 			console.log("Received webhook:", req.body);
 			// valida sendtok do sendflow
-			const sendtok = req.headers['sendtok'] || req.headers['sendtok'.toLowerCase()];
+			const sendtok =
+				req.headers["sendtok"] || req.headers["sendtok".toLowerCase()];
 			if (!sendtok) {
 				console.error("Webhook inválido: sendtok não encontrado nos headers.");
 				return res.status(400).json({
@@ -48,7 +49,10 @@ class WebhookController {
 			}
 
 			// Define uma instância aleatória para enviar a mensagem
-			const instance = allInstances.length > 0 ? allInstances[Math.floor(Math.random() * allInstances.length)] : null;
+			const instance =
+				allInstances.length > 0
+					? allInstances[Math.floor(Math.random() * allInstances.length)]
+					: null;
 			if (!instance) {
 				console.error("No instances available to send the message.");
 				return res.status(500).json({
@@ -68,17 +72,17 @@ class WebhookController {
 				Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 
 			// Exemplo de mensagem formatada para WhatsApp
-			const text = `Seja bem-vindo(a) a minha comunidade vip!!! Saiba que sua presença aqui é muito especial. 🎉😃
+			const text = `🎉 Seja bem-vindo(a) à comunidade VIP do HÉLDER SORTEIOS!
 
-👀 Fique de olho no grupo de avisos, é por lá que Hélder vai mandar todas informações sobre os nossos sorteios. 
+👀 Acompanhe o grupo de avisos — o Hélder manda tudo por lá!
 
-Já aproveito também pra te enviar o link da ação gratuita da Fan 0 KM, não se esqueça se você ganhar e não estiver mais no grupo será desclassificado automaticamente. 👉🏼 
+🚨 Já participa da ação Fan 0 KM gratuita:
+👉🏼 https://heldersorteios.com/campanha/hondafan25gratis
+Se ganhar e sair do grupo, será desclassificado!
 
-https://heldersorteios.com/campanha/hondafan25gratis
-
-E caso tenha qualquer dúvida sobre nossas ações é só falar aqui. Tamo junto! ❤️🍀
-
-Se o link não funcionar, responda essa mensagem com um "ok" ou salve o número de telefone! Obrigado! 🙏🏼`;
+Dúvidas? Chama aqui!
+Se o link não abrir, responda com OK ou salve o número.
+Tamo junto! ❤️🍀`;
 
 			const data = {
 				number: req.body.data.number,
@@ -95,7 +99,12 @@ Se o link não funcionar, responda essa mensagem com um "ok" ou salve o número 
 			}
 
 			// Responde imediatamente ao webhook
-			res.status(200).json({ success: true, message: 'Mensagem será enviada em background.' });
+			res
+				.status(200)
+				.json({
+					success: true,
+					message: "Mensagem será enviada em background.",
+				});
 
 			// Envia a mensagem em background
 			(async () => {
@@ -106,10 +115,7 @@ Se o link não funcionar, responda essa mensagem com um "ok" ou salve o número 
 							"Content-Type": "application/json",
 						},
 					});
-					console.log(
-						"Mensagem enviada para Evolution API:",
-						response.data
-					);
+					console.log("Mensagem enviada para Evolution API:", response.data);
 				} catch (error) {
 					console.error(
 						"Erro ao enviar mensagem para Evolution API:",
