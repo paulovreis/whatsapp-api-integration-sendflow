@@ -2,9 +2,9 @@
 FROM node:20 AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN yarn install
 COPY . .
-RUN npm run build
+RUN yarn build
 
 # Etapa 2: servidor Nginx para servir os arquivos estáticos
 FROM nginx:alpine
