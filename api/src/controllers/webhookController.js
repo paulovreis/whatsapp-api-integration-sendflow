@@ -1,6 +1,8 @@
 //WebhookController.js
 const axios = require("axios");
 const dotenv = require("dotenv");
+const fs = require("fs");
+const path = require("path");
 dotenv.config({ path: require("path").resolve(__dirname, "../.env") });
 
 class WebhookController {
@@ -41,7 +43,11 @@ class WebhookController {
 					},
 				});
 				allInstances = (response.data || [])
-					.filter((instance) => instance?.connectionStatus === "connected" || instance?.connectionStatus === "open")
+					.filter(
+						(instance) =>
+							instance?.connectionStatus === "connected" ||
+							instance?.connectionStatus === "open"
+					)
 					.map((instance) => instance?.name)
 					.filter(Boolean);
 				console.log("All instances fetched (status open):", allInstances);
@@ -73,17 +79,17 @@ class WebhookController {
 				Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 
 			// Exemplo de mensagem formatada para WhatsApp
-			const text = `🎉 Seja bem-vindo(a) à comunidade VIP do HÉLDER SORTEIOS!
-
-👀 Acompanhe o grupo de avisos — o Hélder manda tudo por lá!
-
-🚨 Já participa da ação Fan 0 KM gratuita:
-👉🏼 https://heldersorteios.com/campanha/hondafan25gratis
-Se ganhar e sair do grupo, será desclassificado!
-
-Dúvidas? Chama aqui!
-Se o link não abrir, responda com OK ou salve o número.
-Tamo junto! ❤️🍀`;
+			const messageFile = path.resolve(__dirname, "../archives/message.json");
+			const messageData = JSON.parse(fs.readFileSync(messageFile, "utf8"));
+			const text = messageData.message;
+			console.log("Mensagem a ser enviada:", text);
+			if (!text) {
+				console.error("Mensagem não encontrada no arquivo message.json.");
+				return res.status(400).json({
+					success: false,
+					error: "Mensagem não encontrada no arquivo message.json.",
+				});
+			}
 
 			const data = {
 				number: req.body.data.number,
@@ -100,12 +106,10 @@ Tamo junto! ❤️🍀`;
 			}
 
 			// Responde imediatamente ao webhook
-			res
-				.status(200)
-				.json({
-					success: true,
-					message: "Mensagem será enviada em background.",
-				});
+			res.status(200).json({
+				success: true,
+				message: "Mensagem será enviada em background.",
+			});
 
 			// Envia a mensagem em background
 			(async () => {
