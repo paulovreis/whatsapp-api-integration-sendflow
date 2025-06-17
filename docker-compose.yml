@@ -71,6 +71,19 @@ services:
       - evolution-api
     networks:
       - evolution-net
+    
+  frontend:
+    container_name: frontend
+    build:
+      context: ./web/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3020:80"
+    restart: always
+    depends_on:
+      - evolution-api
+    networks:
+      - evolution-net
 
 volumes:
   evolution_instances:

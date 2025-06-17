@@ -22,7 +22,15 @@ const validateWebhook = [
   body('data.createdAt').isString().notEmpty().withMessage("Campo 'data.createdAt' obrigatório e deve ser string (data ISO)."),
   validationMiddleware
 ];
+const validateWhatsappMessage = [
+  body('message')
+    .isString()
+    .notEmpty()
+    .withMessage("Campo 'message' obrigatório e deve ser string."),
+  validationMiddleware
+];
 
 module.exports = {
-  validateWebhook
+  validateWebhook,
+  validateWhatsappMessage
 };
