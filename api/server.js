@@ -5,7 +5,7 @@ const validationMiddleware = require("./src/middlewares/validationMiddleware");
 const webhookRoutesFactory = require("./src/routes/webhookRoutes");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const whatsappController = require("./src/controllers/whatsappController");
+const WhatsappController = require("./src/controllers/whatsappController");
 const whatsappRoutesFactory = require("./src/routes/whatsappRoutes");
 dotenv.config({ path: require('path').resolve(__dirname, '../.env') });
 
@@ -36,6 +36,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/webhook", webhookRoutes);
+app.use("/whatsapp", whatsappRoutes);
 
 const PORT = process.env.PORT || 3010;
 app.listen(PORT, () => {
