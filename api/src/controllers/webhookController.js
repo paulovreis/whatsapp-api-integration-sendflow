@@ -41,9 +41,10 @@ class WebhookController {
 					},
 				});
 				allInstances = (response.data || [])
+					.filter((instance) => instance?.connectionStatus === "connected" || instance?.connectionStatus === "open")
 					.map((instance) => instance?.name)
 					.filter(Boolean);
-				console.log("All instances fetched:", allInstances);
+				console.log("All instances fetched (status open):", allInstances);
 			} catch (error) {
 				console.error("Error fetching instances:", error.message);
 			}
