@@ -64,9 +64,7 @@ class WhatsappController {
           },
         });
         const heatingInstances = (response.data || [])
-          .filter((instance) => (instance?.connectionStatus === "connected" || instance?.connectionStatus === "open") && instance?.name?.startsWith("!"))
-          .map((instance) => instance?.name)
-          .filter(Boolean);
+          .filter((instance) => (instance?.connectionStatus === "connected" || instance?.connectionStatus === "open") && instance?.name?.startsWith("!"));
         if (heatingInstances.length < 2) {
           console.log("É necessário pelo menos 2 instâncias iniciadas com '!' para aquecimento.");
           return;
@@ -83,7 +81,7 @@ class WhatsappController {
             const minDelay = 60000; // 1 min
             const maxDelay = 180000; // 3 min
             const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
-            const url = `${evolutionApiUrl}/message/sendText/${sender}`;
+            const url = `${evolutionApiUrl}/message/sendText/${sender.name}`;
             const data = {
               number: receiver.number,
               text: message,
@@ -100,11 +98,11 @@ class WhatsappController {
                   },
                 });
                 WhatsappController.heatingStats.totalMessages++;
-                WhatsappController.heatingStats.lastMessage = { sender, receiver, date: new Date(), text: message };
-                console.log(`Mensagem enviada de ${sender} para ${receiver}`);
+                WhatsappController.heatingStats.lastMessage = { sender: sender.name, receiver: receiver.number, date: new Date(), text: message };
+                console.log(`Mensagem enviada de ${sender.name} para ${receiver.number}`);
               } catch (err) {
                 WhatsappController.heatingStats.errors++;
-                console.error(`Erro ao enviar de ${sender} para ${receiver}:`, err.message);
+                console.error(`Erro ao enviar de ${sender.name} para ${receiver.number}:`, err.message);
               }
               await new Promise(resolve => setTimeout(resolve, randomDelay));
             };
