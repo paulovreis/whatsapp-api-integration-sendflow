@@ -45,7 +45,7 @@ class WhatsappController {
     const evolutionApiUrl = process.env.EVOLUTION_API_URL;
     const fetchInstances = `${evolutionApiUrl}/instance/fetchInstances/`;
     const randomMessage = () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+/%*_.,;:?!@#$&()[]{}<>|';
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+/%*_.,;:?!@#$&()[]{}<>| ';
       const length = Math.floor(Math.random() * (1000 - 100 + 1)) + 100;
       let result = '';
       for (let i = 0; i < length; i++) {
@@ -77,8 +77,8 @@ class WhatsappController {
           for (const receiver of receivers) {
             if (!WhatsappController.heatingActive) return;
             // DEBUG: log instância completa
-            console.log('Sender:', sender);
-            console.log('Receiver:', receiver);
+            // console.log('Sender:', sender);
+            // console.log('Receiver:', receiver);
             const senderName = sender?.name || 'null';
             const receiverNumber = receiver?.number || receiver?.phone || receiver?.waNumber || null;
             console.log(`Enviando mensagem de aquecimento de ${senderName} para ${receiverNumber}`);
