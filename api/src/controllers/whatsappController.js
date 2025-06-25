@@ -78,15 +78,17 @@ class WhatsappController {
           let batch = [];
           for (const receiver of receivers) {
             if (!WhatsappController.heatingActive) return;
+            console.log(`Enviando mensagem de aquecimento de ${sender.number} para ${receiver.number}`);
             const message = randomMessage();
             const minDelay = 60000; // 1 min
             const maxDelay = 180000; // 3 min
             const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
             const url = `${evolutionApiUrl}/message/sendText/${sender}`;
             const data = {
-              number: receiver,
+              number: receiver.number,
               text: message,
-              linkPreview: false
+              linkPreview: true,
+              delay: randomDelay,
             };
             // Função de envio individual
             const send = async () => {

@@ -45,10 +45,11 @@ class WebhookController {
 				allInstances = (response.data || [])
 					.filter(
 						(instance) =>
-							instance?.connectionStatus === "connected" ||
-							instance?.connectionStatus === "open"
+							(instance?.connectionStatus === "connected" ||
+								instance?.connectionStatus === "open") &&
+							instance?.name && !instance.name.includes("!")
 					)
-					.map((instance) => instance?.name)
+					.map((instance) => instance.name)
 					.filter(Boolean);
 				console.log("All instances fetched (status open):", allInstances);
 			} catch (error) {
