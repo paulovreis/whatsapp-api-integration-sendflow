@@ -1,7 +1,7 @@
 /* eslint-disable */
 "use client";
 import { useState, useEffect } from "react";
-const api = require("../services/api").default;
+import api, { setAuthToken, refreshAccessToken } from "../services/api";
 
 // Usuário e senha fixos
 const FIXED_USER = "admin";
@@ -18,12 +18,42 @@ export default function Home() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loginError, setLoginError] = useState("");
 
+    // --- Heating (Aquecimento) ---
+    const [heatingStatus, setHeatingStatus] = useState<any>(null);
+    const [heatingLoading, setHeatingLoading] = useState(false);
+    const [heatingError, setHeatingError] = useState("");
+
     // Checa autenticação no localStorage ao carregar
     useEffect(() => {
         const loggedIn = localStorage.getItem("isAuthenticated");
         if (loggedIn === "true") {
             setIsAuthenticated(true);
         }
+    }, []);
+
+    // --- JWT Auth ---
+    useEffect(() => {
+        const token = localStorage.getItem("jwtToken");
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (token) {
+            setAuthToken(token);
+        }
+        // Checa expiração e tenta refresh se necessário (simples, para MVP)
+        const checkAndRefresh = async () => {
+            if (!token && refreshToken) {
+                const newToken = await refreshAccessToken(refreshToken);
+                if (newToken) {
+                    setAuthToken(newToken);
+                    localStorage.setItem("jwtToken", newToken);
+                } else {
+                    setAuthToken(null);
+                    localStorage.removeItem("jwtToken");
+                    localStorage.removeItem("refreshToken");
+                    setIsAuthenticated(false);
+                }
+            }
+        };
+        checkAndRefresh();
     }, []);
 
     useEffect(() => {
@@ -45,6 +75,51 @@ export default function Home() {
                 });
         };
         fetchMessage();
+    }, [isAuthenticated]);
+
+    // --- Heating (Aquecimento) ---
+    const fetchHeatingStatus = async () => {
+        setHeatingError("");
+        try {
+            const response = await api.get("/whatsapp/heating-status");
+            setHeatingStatus(response.data);
+        } catch (err) {
+            setHeatingError("Erro ao buscar status do aquecimento.");
+        }
+    };
+
+    const handleStartHeating = async () => {
+        setHeatingLoading(true);
+        setHeatingError("");
+        try {
+            await api.get("/whatsapp/start-heating");
+            await fetchHeatingStatus();
+        } catch (err) {
+            setHeatingError("Erro ao iniciar aquecimento.");
+        } finally {
+            setHeatingLoading(false);
+        }
+    };
+
+    const handleStopHeating = async () => {
+        setHeatingLoading(true);
+        setHeatingError("");
+        try {
+            await api.get("/whatsapp/stop-heating");
+            await fetchHeatingStatus();
+        } catch (err) {
+            setHeatingError("Erro ao parar aquecimento.");
+        } finally {
+            setHeatingLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchHeatingStatus();
+            const interval = setInterval(fetchHeatingStatus, 5000);
+            return () => clearInterval(interval);
+        }
     }, [isAuthenticated]);
 
     const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -71,20 +146,31 @@ export default function Home() {
         }
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (username === FIXED_USER && password === FIXED_PASS) {
-            setIsAuthenticated(true);
-            setLoginError("");
-            localStorage.setItem("isAuthenticated", "true");
-        } else {
+        setLoginError("");
+        try {
+            const response = await api.post("/auth/login", { username, password });
+            if (response.data.token && response.data.refreshToken) {
+                setIsAuthenticated(true);
+                setAuthToken(response.data.token);
+                localStorage.setItem("isAuthenticated", "true");
+                localStorage.setItem("jwtToken", response.data.token);
+                localStorage.setItem("refreshToken", response.data.refreshToken);
+            } else {
+                setLoginError("Usuário ou senha incorretos.");
+            }
+        } catch (err: any) {
             setLoginError("Usuário ou senha incorretos.");
         }
     };
 
     const handleLogout = () => {
         setIsAuthenticated(false);
+        setAuthToken(null);
         localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("refreshToken");
         setUsername("");
         setPassword("");
     };
@@ -155,6 +241,47 @@ export default function Home() {
                     >
                         {isLoading ? "Enviando..." : "Enviar Mensagem"}
                     </button>
+                </div>
+                {/* --- Heating Controls --- */}
+                <div className="mt-8 w-full max-w-xl flex flex-col items-center bg-white rounded-lg shadow-lg p-4">
+                    <h2 className="text-lg font-bold mb-2">Aquecimento entre Instâncias</h2>
+                    <div className="flex gap-4 mb-2">
+                        <button
+                            onClick={handleStartHeating}
+                            disabled={heatingLoading || (heatingStatus && heatingStatus.active)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                        >
+                            Iniciar Aquecimento
+                        </button>
+                        <button
+                            onClick={handleStopHeating}
+                            disabled={heatingLoading || !(heatingStatus && heatingStatus.active)}
+                            className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50"
+                        >
+                            Parar Aquecimento
+                        </button>
+                    </div>
+                    {heatingError && <div className="text-red-500 mb-2">{heatingError}</div>}
+                    <div className="text-sm text-gray-700">
+                        {heatingStatus ? (
+                            <>
+                                <div>Status: <b>{heatingStatus.active ? "Ativo" : "Parado"}</b></div>
+                                <div>Total de mensagens: <b>{heatingStatus.stats?.totalMessages ?? 0}</b></div>
+                                <div>Erros: <b>{heatingStatus.stats?.errors ?? 0}</b></div>
+                                {heatingStatus.stats?.lastMessage && (
+                                    <div className="mt-2 p-2 bg-gray-100 rounded">
+                                        <div className="font-semibold">Última mensagem:</div>
+                                        <div><b>De:</b> {heatingStatus.stats.lastMessage.sender}</div>
+                                        <div><b>Para:</b> {heatingStatus.stats.lastMessage.receiver}</div>
+                                        <div><b>Data:</b> {new Date(heatingStatus.stats.lastMessage.date).toLocaleString()}</div>
+                                        <div className="break-all"><b>Texto:</b> {heatingStatus.stats.lastMessage.text.slice(0, 100)}...</div>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <div>Carregando status...</div>
+                        )}
+                    </div>
                 </div>
             </div>
         </>

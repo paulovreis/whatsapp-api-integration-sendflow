@@ -74,7 +74,7 @@ class WebhookController {
 
 			// Message delay
 			const minDelay = 4000; // 4 segundos
-			const maxDelay = 10000; // 10 segundos
+			const maxDelay = 60000; // 60 segundos
 			const delay =
 				Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 
