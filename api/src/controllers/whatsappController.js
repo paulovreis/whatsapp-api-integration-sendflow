@@ -76,14 +76,19 @@ class WhatsappController {
           let batch = [];
           for (const receiver of receivers) {
             if (!WhatsappController.heatingActive) return;
-            console.log(`Enviando mensagem de aquecimento de ${sender.number} para ${receiver.number}`);
+            // DEBUG: log instância completa
+            console.log('Sender:', sender);
+            console.log('Receiver:', receiver);
+            const senderName = sender?.name || 'null';
+            const receiverNumber = receiver?.number || receiver?.phone || receiver?.waNumber || null;
+            console.log(`Enviando mensagem de aquecimento de ${senderName} para ${receiverNumber}`);
             const message = randomMessage();
             const minDelay = 60000; // 1 min
             const maxDelay = 180000; // 3 min
             const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
-            const url = `${evolutionApiUrl}/message/sendText/${sender.name}`;
+            const url = `${evolutionApiUrl}/message/sendText/${senderName}`;
             const data = {
-              number: receiver.number,
+              number: receiverNumber,
               text: message,
               linkPreview: true,
               delay: randomDelay,
@@ -91,6 +96,7 @@ class WhatsappController {
             // Função de envio individual
             const send = async () => {
               try {
+                if (!receiverNumber) throw new Error('Número do receiver não encontrado!');
                 await axios.post(url, data, {
                   headers: {
                     apikey: apiKey,
@@ -98,11 +104,11 @@ class WhatsappController {
                   },
                 });
                 WhatsappController.heatingStats.totalMessages++;
-                WhatsappController.heatingStats.lastMessage = { sender: sender.name, receiver: receiver.number, date: new Date(), text: message };
-                console.log(`Mensagem enviada de ${sender.name} para ${receiver.number}`);
+                WhatsappController.heatingStats.lastMessage = { sender: senderName, receiver: receiverNumber, date: new Date(), text: message };
+                console.log(`Mensagem enviada de ${senderName} para ${receiverNumber}`);
               } catch (err) {
                 WhatsappController.heatingStats.errors++;
-                console.error(`Erro ao enviar de ${sender.name} para ${receiver.number}:`, err.message);
+                console.error(`Erro ao enviar de ${senderName} para ${receiverNumber}:`, err.message);
               }
               await new Promise(resolve => setTimeout(resolve, randomDelay));
             };
