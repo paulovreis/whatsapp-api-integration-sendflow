@@ -268,6 +268,9 @@ export default function Home() {
                                 <div>Status: <b>{heatingStatus.active ? "Ativo" : "Parado"}</b></div>
                                 <div>Total de mensagens: <b>{heatingStatus.stats?.totalMessages ?? 0}</b></div>
                                 <div>Erros: <b>{heatingStatus.stats?.errors ?? 0}</b></div>
+                                {heatingStatus.startedByCron && (
+                                    <div className="text-blue-600 font-semibold">Aquecimento iniciado automaticamente pelo backend</div>
+                                )}
                                 {heatingStatus.stats?.lastMessage && (
                                     <div className="mt-2 p-2 bg-gray-100 rounded">
                                         <div className="font-semibold">Última mensagem:</div>

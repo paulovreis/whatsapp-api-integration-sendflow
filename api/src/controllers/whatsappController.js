@@ -145,7 +145,8 @@ class WhatsappController {
   async heatingStatus(req, res) {
     res.status(200).json({
       active: WhatsappController.heatingActive,
-      stats: WhatsappController.heatingStats
+      stats: WhatsappController.heatingStats,
+      startedByCron: req.app?.locals?.heatingStartedByCron || false
     });
   }
 }

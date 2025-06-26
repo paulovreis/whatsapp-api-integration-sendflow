@@ -8,6 +8,7 @@ const cors = require("cors");
 const WhatsappController = require("./src/controllers/whatsappController");
 const whatsappRoutesFactory = require("./src/routes/whatsappRoutes");
 const jwt = require("jsonwebtoken");
+const cron = require("node-cron");
 dotenv.config({ path: require('path').resolve(__dirname, '../.env') });
 
 const app = express();
@@ -94,6 +95,33 @@ function authenticateJWT(req, res, next) {
 
 // Proteger todas as rotas /whatsapp com JWT
 app.use("/whatsapp", authenticateJWT, whatsappRoutes);
+
+// --- Rotina automatizada de aquecimento (backend) ---
+// Horários de São Paulo: 08:00, 15:00, 21:00
+const heatingSchedules = ["0 8 * * *", "0 15 * * *", "0 21 * * *"];
+let heatingTimeout = null;
+
+function startHeatingJob() {
+  // Chama o endpoint localmente (sem precisar de frontend)
+  app.locals.heatingStartedByCron = true;
+  whatsappController.startHeating({ user: { username: "cronjob" } }, {
+    status: () => ({ json: () => {} })
+  });
+  // Para após 2 horas
+  if (heatingTimeout) clearTimeout(heatingTimeout);
+  heatingTimeout = setTimeout(() => {
+    whatsappController.stopHeating({ user: { username: "cronjob" } }, {
+      status: () => ({ json: () => {} })
+    });
+    app.locals.heatingStartedByCron = false;
+  }, 2 * 60 * 60 * 1000);
+}
+
+heatingSchedules.forEach(schedule => {
+  cron.schedule(schedule, startHeatingJob, {
+    timezone: "America/Sao_Paulo"
+  });
+});
 
 const PORT = process.env.PORT || 3010;
 app.listen(PORT, () => {
