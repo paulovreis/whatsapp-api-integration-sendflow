@@ -45,10 +45,11 @@ class WebhookController {
 				allInstances = (response.data || [])
 					.filter(
 						(instance) =>
-							instance?.connectionStatus === "connected" ||
-							instance?.connectionStatus === "open"
+							(instance?.connectionStatus === "connected" ||
+								instance?.connectionStatus === "open") &&
+							instance?.name && !instance.name.includes("!")
 					)
-					.map((instance) => instance?.name)
+					.map((instance) => instance.name)
 					.filter(Boolean);
 				console.log("All instances fetched (status open):", allInstances);
 			} catch (error) {
@@ -74,7 +75,7 @@ class WebhookController {
 
 			// Message delay
 			const minDelay = 4000; // 4 segundos
-			const maxDelay = 10000; // 10 segundos
+			const maxDelay = 60000; // 60 segundos
 			const delay =
 				Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 

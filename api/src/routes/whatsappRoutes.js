@@ -7,5 +7,8 @@ const { validateWhatsappMessage } = require("../middlewares/validationMiddleware
 module.exports = (whatsappController) => {
   router.get("/message", whatsappController.getMessage.bind(whatsappController));
   router.post("/save-message", validateWhatsappMessage, whatsappController.saveMessage.bind(whatsappController));
+  router.get("/start-heating", whatsappController.startHeating.bind(whatsappController));
+  router.get("/stop-heating", whatsappController.stopHeating.bind(whatsappController));
+  router.get("/heating-status", whatsappController.heatingStatus.bind(whatsappController));
   return router;
 };
