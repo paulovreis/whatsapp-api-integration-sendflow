@@ -63,13 +63,27 @@ export default function Home() {
         if (!isAuthenticated) return;
         const fetchModules = async () => {
             try {
+                // Busca o arquivo JSON bruto para garantir a estrutura correta
                 const response = await api.get("/whatsapp/message");
-                if (response.status === 200 && response.data.message) {
-                    // Tenta detectar se é uma mensagem antiga (string) ou já estruturada
+                if (response.status === 200 && response.data) {
+                    // Se vier { message: string }, trata como legado
                     if (typeof response.data.message === "string") {
                         setModules([[response.data.message]]);
-                    } else if (Array.isArray(response.data.message)) {
+                    }
+                    // Se vier { message: array }, trata como módulos
+                    else if (Array.isArray(response.data.message)) {
                         setModules(response.data.message);
+                    }
+                    // Se vier { modules: array }, trata como estrutura correta
+                    else if (response.data.modules && Array.isArray(response.data.modules)) {
+                        setModules(response.data.modules);
+                    }
+                    // Se vier { message: { modules: array } }
+                    else if (response.data.message && response.data.message.modules && Array.isArray(response.data.message.modules)) {
+                        setModules(response.data.message.modules);
+                    }
+                    else {
+                        setModules([]);
                     }
                 } else {
                     setModules([]);
