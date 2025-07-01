@@ -47,7 +47,11 @@ class WebhookController {
 						(instance) =>
 							(instance?.connectionStatus === "connected" ||
 								instance?.connectionStatus === "open") &&
-							instance?.name && !instance.name.includes("!")
+							instance?.name &&
+							(
+								!instance.name.includes("!") ||
+								instance.name === "!busines1"
+							)
 					)
 					.map((instance) => instance.name)
 					.filter(Boolean);
