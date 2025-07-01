@@ -12,6 +12,7 @@ services:
       - evolution_instances:/evolution/instances
     depends_on:
       - postgres
+      - redis
     networks:
       - evolution-net
   
