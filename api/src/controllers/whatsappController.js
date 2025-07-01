@@ -8,23 +8,34 @@ class WhatsappController {
     this.messageFile = path.resolve(__dirname, "../archives/message.json");
   }
 
-  // GET: retorna a mensagem atual
+
+  // GET: retorna uma mensagem montada aleatoriamente a partir dos módulos
   getMessage(req, res) {
     try {
       const data = fs.readFileSync(this.messageFile, "utf8");
       const json = JSON.parse(data);
-      res.status(200).json({ message: json.message });
+      if (!json.modules || !Array.isArray(json.modules)) {
+        return res.status(500).json({ error: "Formato de mensagem inválido." });
+      }
+      // Monta a mensagem escolhendo uma variação aleatória de cada módulo
+      const message = json.modules.map(
+        (mod) => Array.isArray(mod) && mod.length > 0 ? mod[Math.floor(Math.random() * mod.length)] : ""
+      ).join("\n\n");
+      res.status(200).json({ message });
     } catch (error) {
       res.status(500).json({ error: "Erro ao ler a mensagem." });
     }
   }
 
-  // POST: salva uma nova mensagem
+  // POST: salva novos módulos de mensagem
   saveMessage(req, res) {
     try {
-      const { message } = req.body;
-      fs.writeFileSync(this.messageFile, JSON.stringify({ message }, null, 2));
-      res.status(200).json({ success: true, message: "Mensagem salva com sucesso!" });
+      const { modules } = req.body;
+      if (!modules || !Array.isArray(modules)) {
+        return res.status(400).json({ error: "Formato inválido. Envie um array de módulos." });
+      }
+      fs.writeFileSync(this.messageFile, JSON.stringify({ modules }, null, 2));
+      res.status(200).json({ success: true, message: "Módulos de mensagem salvos com sucesso!" });
     } catch (error) {
       res.status(500).json({ error: "Erro ao salvar a mensagem." });
     }

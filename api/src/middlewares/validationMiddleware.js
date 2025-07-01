@@ -23,10 +23,16 @@ const validateWebhook = [
   validationMiddleware
 ];
 const validateWhatsappMessage = [
-  body('message')
+  body('modules')
+    .isArray({ min: 1 })
+    .withMessage("Campo 'modules' obrigatório e deve ser um array."),
+  body('modules.*')
+    .isArray({ min: 1 })
+    .withMessage("Cada módulo deve ser um array com pelo menos uma variação."),
+  body('modules.*.*')
     .isString()
     .notEmpty()
-    .withMessage("Campo 'message' obrigatório e deve ser string."),
+    .withMessage("Cada variação deve ser uma string não vazia."),
   validationMiddleware
 ];
 

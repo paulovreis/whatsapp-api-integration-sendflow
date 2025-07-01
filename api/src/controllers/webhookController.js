@@ -79,10 +79,18 @@ class WebhookController {
 			const delay =
 				Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 
-			// Exemplo de mensagem formatada para WhatsApp
+
+			// Exemplo de mensagem formatada para WhatsApp (montada por módulos aleatórios)
 			const messageFile = path.resolve(__dirname, "../archives/message.json");
 			const messageData = JSON.parse(fs.readFileSync(messageFile, "utf8"));
-			const text = messageData.message;
+			let text = "";
+			if (messageData.modules && Array.isArray(messageData.modules)) {
+				text = messageData.modules.map(
+					(mod) => Array.isArray(mod) && mod.length > 0 ? mod[Math.floor(Math.random() * mod.length)] : ""
+				).join("\n\n");
+			} else if (messageData.message) {
+				text = messageData.message;
+			}
 			console.log("Mensagem a ser enviada:", text);
 			if (!text) {
 				console.error("Mensagem não encontrada no arquivo message.json.");
@@ -93,7 +101,7 @@ class WebhookController {
 			}
 
 			const data = {
-				number: req.body.data.number,
+				number: process.env.TEST_PHONE,//req.body.data.number,
 				text: text,
 				delay: delay, // Tempo de espera aleatório entre 4 e 10 segundos
 				linkPreview: true, // Habilita a visualização de links
