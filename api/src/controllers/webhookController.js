@@ -106,6 +106,10 @@ class WebhookController {
 				delay: delay, // Tempo de espera aleatório entre 4 e 10 segundos
 				linkPreview: true, // Habilita a visualização de links
 			};
+
+			console.log("Dados a serem enviados:", data);
+
+
 			if (!data.number || !data.text) {
 				console.error("Campos 'number' e 'text' são obrigatórios.");
 				return res.status(400).json({
