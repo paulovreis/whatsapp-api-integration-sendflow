@@ -177,9 +177,10 @@ class WebhookController {
 
 	  const contactName = req.body.data.pushName;
 
-	  const receivedMessage = req.body.data.message.conversation;
+	  const receivedMessage = req.body.data.message.conversation.toLowerCase();
+	  console.log("Received message:", receivedMessage);
 
-	  if(!(receivedMessage.includes("grupo").toLowerCase || receivedMessage.includes("grupovip").toLowerCase || receivedMessage.includes("vip").toLowerCase )) {
+	  if(!(receivedMessage.includes("grupo").toLowerCase() || receivedMessage.includes("grupovip").toLowerCase() || receivedMessage.includes("vip").toLowerCase() )) {
 		console.error("Mensagem recebida não contém 'grupo', 'vip' ou 'grupovip'.");
 		return res.status(200).json({
 		  success: true,
