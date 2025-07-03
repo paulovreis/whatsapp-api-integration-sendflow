@@ -36,7 +36,24 @@ const validateWhatsappMessage = [
   validationMiddleware
 ];
 
+
+const validateEvolutionApiWebhook = [
+  body('key').isObject().withMessage("Campo 'key' obrigatório e deve ser um objeto."),
+  body('key.remoteJid').isString().notEmpty().withMessage("Campo 'key.remoteJid' obrigatório e deve ser string."),
+  body('key.fromMe').isBoolean().withMessage("Campo 'key.fromMe' obrigatório e deve ser boolean."),
+  body('key.id').isString().notEmpty().withMessage("Campo 'key.id' obrigatório e deve ser string."),
+  body('pushName').isString().notEmpty().withMessage("Campo 'pushName' obrigatório e deve ser string."),
+  body('status').isString().notEmpty().withMessage("Campo 'status' obrigatório e deve ser string."),
+  body('message').isObject().withMessage("Campo 'message' obrigatório e deve ser um objeto."),
+  body('message.conversation').isString().notEmpty().withMessage("Campo 'message.conversation' obrigatório e deve ser string."),
+  body('messageType').isString().notEmpty().withMessage("Campo 'messageType' obrigatório e deve ser string."),
+  body('messageTimestamp').isNumeric().withMessage("Campo 'messageTimestamp' obrigatório e deve ser numérico."),
+  body('instanceId').isString().notEmpty().withMessage("Campo 'instanceId' obrigatório e deve ser string."),
+  validationMiddleware
+];
+
 module.exports = {
   validateWebhook,
-  validateWhatsappMessage
+  validateWhatsappMessage,
+  validateEvolutionApiWebhook
 };
