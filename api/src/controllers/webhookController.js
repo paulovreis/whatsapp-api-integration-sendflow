@@ -155,11 +155,6 @@ class WebhookController {
 
   async handleEvolutionWebhookFirstMessageResponse(req, res) {
     try {
-      console.log(
-        "Received Evolution webhook for first message response:",
-        req.body
-      );
-
       const numerosAquecimento = [
         "557788783449",
         "557788043945",
@@ -178,7 +173,6 @@ class WebhookController {
       const contactName = req.body.data.pushName;
 
       const receivedMessage = req.body.data.message.conversation.toLowerCase();
-      console.log("Received message:", receivedMessage);
 
       if (
         !(
@@ -263,6 +257,7 @@ class WebhookController {
       // Envia a mensagem em background
       (async () => {
         try {
+          // Envia mensagem de texto
           const response = await axios.post(evolutionApiUrl, data, {
             headers: {
               apikey: apiKey,
@@ -270,9 +265,47 @@ class WebhookController {
             },
           });
           console.log("Mensagem enviada para Evolution API:", response.data);
+
+          // Função para ler e converter áudio em base64
+          function getAudioBase64(filename) {
+            const audioPath = path.resolve(__dirname, '../archives', filename);
+            const audioBuffer = fs.readFileSync(audioPath);
+            return audioBuffer.toString('base64');
+          }
+
+          // Envia o primeiro áudio
+          const audio1 = getAudioBase64('Portal.mp3');
+          const audioData1 = {
+            number: number,
+            audio: audio1,
+            delay: 36000,
+          };
+          await axios.post(`${this.evolutionApiUrl}/message/sendWhatsappAudio/${req.body.instance}`, audioData1, {
+            headers: {
+              apikey: apiKey,
+              "Content-Type": "application/json",
+            },
+          });
+          console.log("Áudio 1 enviado para Evolution API");
+
+          // Envia o segundo áudio
+          const audio2 = getAudioBase64('Portal-2.mp3');
+          const audioData2 = {
+            number: number,
+            audio: audio2,
+            delay: 43000,
+          };
+          await axios.post(`${this.evolutionApiUrl}/message/sendAudio/${req.body.instance}`, audioData2, {
+            headers: {
+              apikey: apiKey,
+              "Content-Type": "application/json",
+            },
+          });
+          console.log("Áudio 2 enviado para Evolution API");
+
         } catch (error) {
           console.error(
-            "Erro ao enviar mensagem para Evolution API:",
+            "Erro ao enviar mensagem ou áudios para Evolution API:",
             error.message
           );
         }

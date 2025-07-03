@@ -38,17 +38,26 @@ const validateWhatsappMessage = [
 
 
 const validateEvolutionApiWebhook = [
-  body('key').isObject().withMessage("Campo 'key' obrigatório e deve ser um objeto."),
-  body('key.remoteJid').isString().notEmpty().withMessage("Campo 'key.remoteJid' obrigatório e deve ser string."),
-  body('key.fromMe').isBoolean().withMessage("Campo 'key.fromMe' obrigatório e deve ser boolean."),
-  body('key.id').isString().notEmpty().withMessage("Campo 'key.id' obrigatório e deve ser string."),
-  body('pushName').isString().notEmpty().withMessage("Campo 'pushName' obrigatório e deve ser string."),
-  body('status').isString().notEmpty().withMessage("Campo 'status' obrigatório e deve ser string."),
-  body('message').isObject().withMessage("Campo 'message' obrigatório e deve ser um objeto."),
-  body('message.conversation').isString().notEmpty().withMessage("Campo 'message.conversation' obrigatório e deve ser string."),
-  body('messageType').isString().notEmpty().withMessage("Campo 'messageType' obrigatório e deve ser string."),
-  body('messageTimestamp').isNumeric().withMessage("Campo 'messageTimestamp' obrigatório e deve ser numérico."),
-  body('instanceId').isString().notEmpty().withMessage("Campo 'instanceId' obrigatório e deve ser string."),
+  body('event').isString().notEmpty().withMessage("Campo 'event' obrigatório e deve ser string."),
+  body('instance').isString().notEmpty().withMessage("Campo 'instance' obrigatório e deve ser string."),
+  body('data').isObject().withMessage("Campo 'data' obrigatório e deve ser um objeto."),
+  body('data.key').isObject().withMessage("Campo 'data.key' obrigatório e deve ser um objeto."),
+  body('data.key.remoteJid').isString().notEmpty().withMessage("Campo 'data.key.remoteJid' obrigatório e deve ser string."),
+  body('data.key.fromMe').isBoolean().withMessage("Campo 'data.key.fromMe' obrigatório e deve ser boolean."),
+  body('data.key.id').isString().notEmpty().withMessage("Campo 'data.key.id' obrigatório e deve ser string."),
+  body('data.pushName').isString().notEmpty().withMessage("Campo 'data.pushName' obrigatório e deve ser string."),
+  body('data.status').isString().notEmpty().withMessage("Campo 'data.status' obrigatório e deve ser string."),
+  body('data.message').isObject().withMessage("Campo 'data.message' obrigatório e deve ser um objeto."),
+  body('data.message.conversation').isString().notEmpty().withMessage("Campo 'data.message.conversation' obrigatório e deve ser string."),
+  body('data.messageType').isString().notEmpty().withMessage("Campo 'data.messageType' obrigatório e deve ser string."),
+  body('data.messageTimestamp').isNumeric().withMessage("Campo 'data.messageTimestamp' obrigatório e deve ser numérico."),
+  body('data.instanceId').isString().notEmpty().withMessage("Campo 'data.instanceId' obrigatório e deve ser string."),
+  body('data.source').isString().notEmpty().withMessage("Campo 'data.source' obrigatório e deve ser string."),
+  body('destination').isString().notEmpty().withMessage("Campo 'destination' obrigatório e deve ser string."),
+  body('date_time').isString().notEmpty().withMessage("Campo 'date_time' obrigatório e deve ser string."),
+  body('sender').isString().notEmpty().withMessage("Campo 'sender' obrigatório e deve ser string."),
+  body('server_url').isString().notEmpty().withMessage("Campo 'server_url' obrigatório e deve ser string."),
+  body('apikey').isString().notEmpty().withMessage("Campo 'apikey' obrigatório e deve ser string."),
   validationMiddleware
 ];
 
