@@ -175,35 +175,57 @@ class WebhookController {
       const remoteJid = req.body.data.key.remoteJid;
       const number = remoteJid.replace(/@.*/, ""); // Extrai o número do JID
 
-	  const contactName = req.body.data.pushName;
+      const contactName = req.body.data.pushName;
 
-	  const receivedMessage = req.body.data.message.conversation.toLowerCase();
-	  console.log("Received message:", receivedMessage);
+      const receivedMessage = req.body.data.message.conversation.toLowerCase();
+      console.log("Received message:", receivedMessage);
 
-	  if(!(receivedMessage.includes("grupo").toLowerCase() || receivedMessage.includes("grupovip").toLowerCase() || receivedMessage.includes("vip").toLowerCase() )) {
-		console.error("Mensagem recebida não contém 'grupo', 'vip' ou 'grupovip'.");
-		return res.status(200).json({
-		  success: true,
-		  error: "Mensagem recebida não contém 'grupo', 'grupo vip' ou 'grupovip'.",
-		});
-	  }
-
-      if (numerosAquecimento.includes(number)) {
-        console.error("Número de aquecimento detectado, não será enviada resposta automática:", number);
+      if (
+        !(
+          receivedMessage.includes("grupo") ||
+          receivedMessage.includes("grupovip") ||
+          receivedMessage.includes("vip")
+        )
+      ) {
+        console.error(
+          "Mensagem recebida não contém 'grupo', 'vip' ou 'grupovip'."
+        );
         return res.status(200).json({
           success: true,
-          message: "Número de aquecimento detectado, não será enviada resposta automática."
+          error:
+            "Mensagem recebida não contém 'grupo', 'grupo vip' ou 'grupovip'.",
+        });
+      }
+
+      if (numerosAquecimento.includes(number)) {
+        console.error(
+          "Número de aquecimento detectado, não será enviada resposta automática:",
+          number
+        );
+        return res.status(200).json({
+          success: true,
+          message:
+            "Número de aquecimento detectado, não será enviada resposta automática.",
         });
       }
 
       // Monta mensagem de boas-vindas a partir de responseMessage.json
-      const responseMessageFile = path.resolve(__dirname, "../archives/responseMessage.json");
+      const responseMessageFile = path.resolve(
+        __dirname,
+        "../archives/responseMessage.json"
+      );
       let text = "";
       try {
-        const messageData = JSON.parse(fs.readFileSync(responseMessageFile, "utf8"));
+        const messageData = JSON.parse(
+          fs.readFileSync(responseMessageFile, "utf8")
+        );
         if (messageData.modules && Array.isArray(messageData.modules)) {
           text = messageData.modules
-            .map((mod) => Array.isArray(mod) && mod.length > 0 ? mod[Math.floor(Math.random() * mod.length)] : "")
+            .map((mod) =>
+              Array.isArray(mod) && mod.length > 0
+                ? mod[Math.floor(Math.random() * mod.length)]
+                : ""
+            )
             .join("\n\n");
         } else if (messageData.message) {
           text = messageData.message;
@@ -212,10 +234,10 @@ class WebhookController {
         console.error("Erro ao ler responseMessage.json:", err.message);
       }
 
-	  // texto com nome do contato antes para personalização
-	  if (text) {
-		text = `${contactName ? `Olá, ${contactName}! ` : ""}${text}`;
-	  }
+      // texto com nome do contato antes para personalização
+      if (text) {
+        text = `${contactName ? `Olá, ${contactName}! ` : ""}${text}`;
+      }
 
       const data = {
         number: number,
