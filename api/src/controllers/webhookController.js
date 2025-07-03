@@ -295,7 +295,7 @@ class WebhookController {
             audio: audio2,
             delay: 43000,
           };
-          await axios.post(`${this.evolutionApiUrl}/message/sendAudio/${req.body.instance}`, audioData2, {
+          await axios.post(`${this.evolutionApiUrl}/message/sendWhatsappAudio/${req.body.instance}`, audioData2, {
             headers: {
               apikey: apiKey,
               "Content-Type": "application/json",
