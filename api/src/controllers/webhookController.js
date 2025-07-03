@@ -318,6 +318,99 @@ class WebhookController {
       res.status(500).json({ success: false, error: error.message });
     }
   }
+
+  // ainda não implementado com uma rota
+  async handleTopBuyersMessage(req, res) {
+    try {
+      // Lê o CSV de compradores
+      const csvPath = path.resolve(__dirname, '../archives/top_compradores_030725.csv');
+      const csvContent = fs.readFileSync(csvPath, 'utf8');
+      const lines = csvContent.split(/\r?\n/).filter(Boolean);
+      const buyers = [];
+      for (let i = 1; i < lines.length; i++) { // pula o cabeçalho
+        const [name, rawPhone] = lines[i].split(',');
+        if (!name || !rawPhone) continue;
+        // Limpa telefone: remove tudo que não for número
+        let phone = rawPhone.replace(/\D/g, '');
+        if (phone.length >= 10 && !phone.startsWith('55')) phone = '55' + phone;
+        buyers.push({ name: name.trim(), phone });
+      }
+
+      // Lê mensagem personalizada dos módulos
+      const messageFile = path.resolve(__dirname, '../archives/topBuyerMessage.json');
+      let text = '';
+      try {
+        const messageData = JSON.parse(fs.readFileSync(messageFile, 'utf8'));
+        if (messageData.modules && Array.isArray(messageData.modules)) {
+          text = messageData.modules
+            .map((mod) => Array.isArray(mod) && mod.length > 0 ? mod[Math.floor(Math.random() * mod.length)] : "")
+            .join("\n\n");
+        } else if (messageData.message) {
+          text = messageData.message;
+        }
+      } catch (err) {
+        console.error("Erro ao ler topBuyerMessage.json:", err.message);
+      }
+      if (!text) text = "Parabéns! Você está entre os melhores compradores!";
+
+      // Função para ler e converter áudio em base64
+      function getAudioBase64(filename) {
+        const audioPath = path.resolve(__dirname, '../archives', filename);
+        const audioBuffer = fs.readFileSync(audioPath);
+        return audioBuffer.toString('base64');
+      }
+      const audioBase64 = getAudioBase64('audio_top_compradores.mp3');
+
+      // Envia mensagem e áudio para cada comprador
+      const apiKey = process.env.AUTHENTICATION_API_KEY;
+      const instance = req.body.instance || '!normal2';
+      const evolutionApiUrl = `https://evolutionapi.helderporto.com/message/sendText/${instance}`;
+      const audioUrl = `https://evolutionapi.helderporto.com/message/sendWhatsappAudio/${instance}`;
+
+      for (const buyer of buyers) {
+        // Mensagem personalizada com nome
+        const personalizedText = `Olá, ${buyer.name}! Tudo bem? Hélder aqui 😃\n\n${text}`;
+        const data = {
+          number: buyer.phone,
+          text: personalizedText,
+          delay: 3000,
+          linkPreview: true,
+        };
+        try {
+          await axios.post(evolutionApiUrl, data, {
+            headers: {
+              apikey: apiKey,
+              "Content-Type": "application/json",
+            },
+          });
+          console.log(`Mensagem enviada para ${buyer.name} (${buyer.phone})`);
+        } catch (err) {
+          console.error(`Erro ao enviar mensagem para ${buyer.name} (${buyer.phone}):`, err.message);
+        }
+        // Envia áudio
+        const audioData = {
+          number: buyer.phone,
+          audio: audioBase64,
+          delay: 40000, // 40 segundos após a mensagem
+        };
+        try {
+          await axios.post(audioUrl, audioData, {
+            headers: {
+              apikey: apiKey,
+              "Content-Type": "application/json",
+            },
+          });
+          console.log(`Áudio enviado para ${buyer.name} (${buyer.phone})`);
+        } catch (err) {
+          console.error(`Erro ao enviar áudio para ${buyer.name} (${buyer.phone}):`, err.message);
+        }
+      }
+      res.status(200).json({ success: true, message: `Mensagens e áudios enviados para ${buyers.length} compradores.` });
+    } catch (error) {
+      console.error('Erro ao enviar mensagens para top buyers:', error.message);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
 }
 
 module.exports = WebhookController;

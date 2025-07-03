@@ -9,16 +9,23 @@ const WhatsappController = require("./src/controllers/whatsappController");
 const whatsappRoutesFactory = require("./src/routes/whatsappRoutes");
 const jwt = require("jsonwebtoken");
 const cron = require("node-cron");
-dotenv.config({ path: require('path').resolve(__dirname, '../.env') });
+dotenv.config({ path: require("path").resolve(__dirname, "../.env") });
 
 const app = express();
 
 // Habilitar CORS para qualquer rota vinda de 'helderporto.com'
-app.use(cors({
-  origin: ['https://helderporto.com', 'https://www.app.helderporto.com', 'https://app.helderporto.com', 'https://www.helderporto.com'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: [
+      "https://helderporto.com",
+      "https://www.app.helderporto.com",
+      "https://app.helderporto.com",
+      "https://www.helderporto.com",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Defina a URL base da Evolution API aqui
 const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL;
@@ -48,12 +55,21 @@ app.post("/auth/refresh", express.json(), (req, res) => {
     return res.status(401).json({ error: "Refresh token inválido." });
   }
   try {
-    const payload = jwt.verify(refreshToken, process.env.JWT_SECRET || "jwtdevsecret");
+    const payload = jwt.verify(
+      refreshToken,
+      process.env.JWT_SECRET || "jwtdevsecret"
+    );
     // Gera novo access token
-    const token = jwt.sign({ username: payload.username }, process.env.JWT_SECRET || "jwtdevsecret", { expiresIn: "2h" });
+    const token = jwt.sign(
+      { username: payload.username },
+      process.env.JWT_SECRET || "jwtdevsecret",
+      { expiresIn: "2h" }
+    );
     return res.status(200).json({ token });
   } catch (err) {
-    return res.status(403).json({ error: "Refresh token expirado ou inválido." });
+    return res
+      .status(403)
+      .json({ error: "Refresh token expirado ou inválido." });
   }
 });
 
@@ -62,8 +78,16 @@ app.post("/auth/login", express.json(), (req, res) => {
   const { username, password } = req.body;
   // Troque por validação real em produção!
   if (username === "admin" && password === "@Temsenha123") {
-    const token = jwt.sign({ username }, process.env.JWT_SECRET || "jwtdevsecret", { expiresIn: "2h" });
-    const refreshToken = jwt.sign({ username }, process.env.JWT_SECRET || "jwtdevsecret", { expiresIn: "30d" });
+    const token = jwt.sign(
+      { username },
+      process.env.JWT_SECRET || "jwtdevsecret",
+      { expiresIn: "2h" }
+    );
+    const refreshToken = jwt.sign(
+      { username },
+      process.env.JWT_SECRET || "jwtdevsecret",
+      { expiresIn: "30d" }
+    );
     REFRESH_TOKENS.add(refreshToken);
     return res.status(200).json({ token, refreshToken });
   }
@@ -83,7 +107,10 @@ function authenticateJWT(req, res, next) {
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const token = authHeader.split(" ")[1];
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || "jwtdevsecret");
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || "jwtdevsecret"
+      );
       req.user = decoded;
       return next();
     } catch (err) {
@@ -104,24 +131,51 @@ let heatingTimeout = null;
 function startHeatingJob() {
   // Chama o endpoint localmente (sem precisar de frontend)
   app.locals.heatingStartedByCron = true;
-  whatsappController.startHeating({ user: { username: "cronjob" } }, {
-    status: () => ({ json: () => {} })
-  });
+  whatsappController.startHeating(
+    { user: { username: "cronjob" } },
+    {
+      status: () => ({ json: () => {} }),
+    }
+  );
   // Para após 2 horas
   if (heatingTimeout) clearTimeout(heatingTimeout);
   heatingTimeout = setTimeout(() => {
-    whatsappController.stopHeating({ user: { username: "cronjob" } }, {
-      status: () => ({ json: () => {} })
-    });
+    whatsappController.stopHeating(
+      { user: { username: "cronjob" } },
+      {
+        status: () => ({ json: () => {} }),
+      }
+    );
     app.locals.heatingStartedByCron = false;
   }, 2 * 60 * 60 * 1000);
 }
 
-heatingSchedules.forEach(schedule => {
+heatingSchedules.forEach((schedule) => {
   cron.schedule(schedule, startHeatingJob, {
-    timezone: "America/Sao_Paulo"
+    timezone: "America/Sao_Paulo",
   });
 });
+
+// //chamar top compradores (experimental, com poucos usos no momento)
+// const req = {
+//   body: {},
+// };
+// const res = {
+//   status: (statusCode) => ({
+//     json: (data) => {
+//       console.log(`Status: ${statusCode}, Data:`, data);
+//     },
+//   }),
+// };
+
+// webhookController
+//   .handleTopBuyersMessage(req, res)
+//   .then(() => {
+//     console.log("Top compradores processados com sucesso.");
+//   })
+//   .catch((error) => {
+//     console.error("Erro ao processar top compradores:", error);
+//   });
 
 const PORT = process.env.PORT || 3010;
 app.listen(PORT, () => {
