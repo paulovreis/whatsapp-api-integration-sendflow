@@ -177,6 +177,16 @@ class WebhookController {
 
 	  const contactName = req.body.data.pushName;
 
+	  const receivedMessage = req.body.data.message.conversation;
+
+	  if(!(receivedMessage.includes("grupo").toLowerCase || receivedMessage.includes("grupovip").toLowerCase || receivedMessage.includes("vip").toLowerCase )) {
+		console.error("Mensagem recebida não contém 'grupo', 'vip' ou 'grupovip'.");
+		return res.status(200).json({
+		  success: true,
+		  error: "Mensagem recebida não contém 'grupo', 'grupo vip' ou 'grupovip'.",
+		});
+	  }
+
       if (numerosAquecimento.includes(number)) {
         console.error("Número de aquecimento detectado, não será enviada resposta automática:", number);
         return res.status(200).json({
