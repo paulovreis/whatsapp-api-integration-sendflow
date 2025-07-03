@@ -159,7 +159,7 @@ class WebhookController {
         "Received Evolution webhook for first message response:",
         req.body
       );
-      const evolutionApiUrl = `${this.evolutionApiUrl}/message/sendText/${req.body.data.instanceName}`;
+      const evolutionApiUrl = `${this.evolutionApiUrl}/message/sendText/${req.body.instance}`;
       const apiKey = process.env.AUTHENTICATION_API_KEY;
 
 	  const randomDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000; // Tempo aleatório entre 5 e 10 segundos
