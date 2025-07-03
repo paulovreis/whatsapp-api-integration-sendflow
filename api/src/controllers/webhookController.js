@@ -159,15 +159,57 @@ class WebhookController {
         "Received Evolution webhook for first message response:",
         req.body
       );
+
+      const numerosAquecimento = [
+        "557788783449",
+        "557788043945",
+        "5577988783449",
+        "5577988043945",
+      ];
+
       const evolutionApiUrl = `${this.evolutionApiUrl}/message/sendText/${req.body.instance}`;
       const apiKey = process.env.AUTHENTICATION_API_KEY;
 
-	  const randomDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000; // Tempo aleatório entre 5 e 10 segundos
+      const randomDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000; // Tempo aleatório entre 5 e 10 segundos
+
+      const remoteJid = req.body.data.key.remoteJid;
+      const number = remoteJid.replace(/@.*/, ""); // Extrai o número do JID
+
+	  const contactName = req.body.data.pushName;
+
+      if (numerosAquecimento.includes(number)) {
+        console.error("Número de aquecimento detectado, não será enviada resposta automática:", number);
+        return res.status(200).json({
+          success: true,
+          message: "Número de aquecimento detectado, não será enviada resposta automática."
+        });
+      }
+
+      // Monta mensagem de boas-vindas a partir de responseMessage.json
+      const responseMessageFile = path.resolve(__dirname, "../archives/responseMessage.json");
+      let text = "";
+      try {
+        const messageData = JSON.parse(fs.readFileSync(responseMessageFile, "utf8"));
+        if (messageData.modules && Array.isArray(messageData.modules)) {
+          text = messageData.modules
+            .map((mod) => Array.isArray(mod) && mod.length > 0 ? mod[Math.floor(Math.random() * mod.length)] : "")
+            .join("\n\n");
+        } else if (messageData.message) {
+          text = messageData.message;
+        }
+      } catch (err) {
+        console.error("Erro ao ler responseMessage.json:", err.message);
+      }
+
+	  // texto com nome do contato antes para personalização
+	  if (text) {
+		text = `${contactName ? `Olá, ${contactName}! ` : ""}${text}`;
+	  }
 
       const data = {
-        number: process.env.TEST_PHONE,
-        text: "Olá! Obrigado por entrar em contato.",
-        delay: randomDelay, // Tempo fixo de 5 segundos
+        number: number,
+        text: text,
+        delay: randomDelay,
         linkPreview: true,
       };
 
