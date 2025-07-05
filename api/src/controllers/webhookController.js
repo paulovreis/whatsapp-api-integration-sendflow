@@ -162,6 +162,16 @@ class WebhookController {
         "5577988043945",
       ];
 
+      // Bloqueia disparos feitos pelo próprio número de envio
+      const sender = req.body.data.key.remoteJid;
+      if (numerosAquecimento.includes(sender.replace(/@.*/, ""))) {
+        console.error("Disparo bloqueado: número de envio está na lista de aquecimento:", sender);
+        return res.status(200).json({
+          success: true,
+          message: "Disparo bloqueado: número de envio está na lista de aquecimento.",
+        });
+      }
+
       const evolutionApiUrl = `${this.evolutionApiUrl}/message/sendText/${req.body.instance}`;
       const apiKey = process.env.AUTHENTICATION_API_KEY;
 
