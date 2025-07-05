@@ -242,7 +242,7 @@ class WebhookController {
 
       // texto com nome do contato antes para personalização
       if (text) {
-        text = `${contactName ? `Olá, ${contactName}! ` : "Olá! "}${text}`;
+        text = `${contactName ? `Olá, ${contactName}! Tudo bem? Hélder aqui 😃 \n` : "Olá! Tudo bem? Hélder aqui 😃 \n"}${text}`;
       }
 
       const data = {
