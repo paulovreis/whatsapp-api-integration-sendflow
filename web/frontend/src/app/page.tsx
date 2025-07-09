@@ -7,9 +7,10 @@ import api, { setAuthToken, refreshAccessToken } from "../services/api";
 const FIXED_USER = "admin";
 const FIXED_PASS = "@Temsenha123";
 
+
 export default function Home() {
-    const [message, setMessage] = useState("");
-    const [newMessage, setNewMessage] = useState("");
+    // Manipulação dos módulos de mensagem
+    const [modules, setModules] = useState<string[][]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     // Estados para autenticação
@@ -56,25 +57,43 @@ export default function Home() {
         checkAndRefresh();
     }, []);
 
+
+    // Carrega os módulos do backend ao autenticar
     useEffect(() => {
         if (!isAuthenticated) return;
-        const fetchMessage = async () => {
-            await api
-                .get("/whatsapp/message")
-                .then((response: any) => {
-                    if (response.status === 200) {
-                        setMessage(response.data.message);
-                        setNewMessage(response.data.message);
-                    } else {
-                        alert("Erro ao carregar mensagem.");
+        const fetchModules = async () => {
+            try {
+                // Busca o arquivo JSON bruto para garantir a estrutura correta
+                const response = await api.get("/whatsapp/message");
+                if (response.status === 200 && response.data) {
+                    console.log("Dados recebidos:", response.data);
+                    // Se vier { modules: array }, trata como estrutura correta
+                    if (response.data.modules && Array.isArray(response.data.modules)) {
+                        setModules(response.data.modules);
                     }
-                })
-                .catch((error: any) => {
-                    console.error("Erro ao carregar mensagem:", error);
-                    alert("Erro ao carregar mensagem.");
-                });
+                    // Se vier { message: { modules: array } }
+                    else if (response.data.message && response.data.message.modules && Array.isArray(response.data.message.modules)) {
+                        setModules(response.data.message.modules);
+                    }
+                    // Se vier { message: array }, trata como módulos
+                    else if (Array.isArray(response.data.message)) {
+                        setModules(response.data.message);
+                    }
+                    // Se vier { message: string }, trata como legado
+                    else if (typeof response.data.message === "string") {
+                        setModules([[response.data.message]]);
+                    }
+                    else {
+                        setModules([]);
+                    }
+                } else {
+                    setModules([]);
+                }
+            } catch (error) {
+                setModules([]);
+            }
         };
-        fetchMessage();
+        fetchModules();
     }, [isAuthenticated]);
 
     // --- Heating (Aquecimento) ---
@@ -122,8 +141,33 @@ export default function Home() {
         }
     }, [isAuthenticated]);
 
-    const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setNewMessage(e.target.value);
+
+    // Manipulação dos módulos e variações
+    const handleModuleChange = (modIdx: number, varIdx: number, value: string) => {
+        setModules((prev) => {
+            const updated = prev.map((mod, i) =>
+                i === modIdx ? mod.map((v, j) => (j === varIdx ? value : v)) : mod
+            );
+            return updated;
+        });
+    };
+
+    const handleAddModule = () => {
+        setModules((prev) => [...prev, [""]]);
+    };
+
+    const handleRemoveModule = (modIdx: number) => {
+        setModules((prev) => prev.filter((_, i) => i !== modIdx));
+    };
+
+    const handleAddVariation = (modIdx: number) => {
+        setModules((prev) => prev.map((mod, i) => (i === modIdx ? [...mod, ""] : mod)));
+    };
+
+    const handleRemoveVariation = (modIdx: number, varIdx: number) => {
+        setModules((prev) => prev.map((mod, i) =>
+            i === modIdx ? mod.filter((_, j) => j !== varIdx) : mod
+        ));
     };
 
     const handleSubmit = async () => {
@@ -131,16 +175,15 @@ export default function Home() {
         setIsLoading(true);
         try {
             const response = await api.post("/whatsapp/save-message", {
-                message: newMessage,
+                modules,
             });
             if (response.status === 200) {
-                alert("Mensagem enviada com sucesso!");
+                alert("Módulos salvos com sucesso!");
             } else {
-                alert("Erro ao enviar mensagem.");
+                alert("Erro ao salvar módulos.");
             }
         } catch (error) {
-            console.error("Erro ao enviar mensagem:", error);
-            alert("Erro ao enviar mensagem.");
+            alert("Erro ao salvar módulos.");
         } finally {
             setIsLoading(false);
         }
@@ -223,23 +266,50 @@ export default function Home() {
                         Sair
                     </button>
                 </div>
-                <h1 className="pb-5 text-2xl">
-                    Alterar mensagem a ser enviada no whatsapp
-                </h1>
+
+                <h1 className="pb-5 text-2xl">Editar módulos da mensagem do WhatsApp</h1>
                 <div className="sm:w-96 md:w-2/3 lg:w-2/3 w-auto h-auto min-h-20 p-2 items-center justify-center flex flex-col bg-white rounded-lg shadow-lg">
-                    <textarea
-                        className="w-full h-40 p-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Digite sua mensagem aqui..."
-                        value={newMessage}
-                        onChange={handleMessageChange}
-                        autoFocus
-                    ></textarea>
+                    {modules.map((mod, modIdx) => (
+                        <div key={modIdx} className="w-full mb-4 p-2 border rounded bg-gray-50">
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="font-semibold">Módulo {modIdx + 1}</span>
+                                <button
+                                    className="text-red-500 text-xs ml-2"
+                                    onClick={() => handleRemoveModule(modIdx)}
+                                    disabled={modules.length === 1}
+                                >Remover módulo</button>
+                            </div>
+                            {mod.map((variation, varIdx) => (
+                                <div key={varIdx} className="flex items-center mb-2">
+                                    <textarea
+                                        className="w-full h-16 p-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder={`Variação ${varIdx + 1}`}
+                                        value={variation}
+                                        onChange={e => handleModuleChange(modIdx, varIdx, e.target.value)}
+                                    />
+                                    <button
+                                        className="ml-2 text-red-400 text-xs"
+                                        onClick={() => handleRemoveVariation(modIdx, varIdx)}
+                                        disabled={mod.length === 1}
+                                    >Remover</button>
+                                </div>
+                            ))}
+                            <button
+                                className="text-blue-500 text-xs mt-1"
+                                onClick={() => handleAddVariation(modIdx)}
+                            >Adicionar variação</button>
+                        </div>
+                    ))}
+                    <button
+                        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        onClick={handleAddModule}
+                    >Adicionar módulo</button>
                     <button
                         disabled={isLoading}
-                        onClick={() => handleSubmit()}
-                        className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition ease-in-out"
+                        onClick={handleSubmit}
+                        className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition ease-in-out"
                     >
-                        {isLoading ? "Enviando..." : "Enviar Mensagem"}
+                        {isLoading ? "Salvando..." : "Salvar módulos"}
                     </button>
                 </div>
                 {/* --- Heating Controls --- */}

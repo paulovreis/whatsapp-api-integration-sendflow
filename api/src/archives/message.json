@@ -1,3 +1,37 @@
 {
-    "message": "🎉 Seja bem-vindo(a) à comunidade VIP do HÉLDER SORTEIOS!\n\n👀 Acompanhe o grupo de avisos — o Hélder manda tudo por lá!\n\n🚨 Já participa da ação Fan 0 KM gratuita:\n👉🏼 https://heldersorteios.com/campanha/hondafan25gratis\nSe ganhar e sair do grupo, será desclassificado!\n\nDúvidas? Chama aqui!\nSe o link não abrir, responda com OK ou salve o número.\nTamo junto! ❤️🍀"
+    "modules": [
+        [
+            "🎉 Seja bem-vindo(a) à comunidade VIP do HÉLDER SORTEIOS!",
+            "Parabéns! Seja muito bem-vindo(a) à comunidade VIP do HÉLDER SORTEIOS! 🎉",
+            "👏 Você agora faz parte da comunidade VIP do HÉLDER SORTEIOS!",
+            "Bem-vindo(a) ao grupo VIP do HÉLDER SORTEIOS! Aproveite!",
+            "É um prazer ter você na comunidade VIP do HÉLDER SORTEIOS! 🎊"
+        ],
+        [
+            "Confirmei a sua entrada no grupo VIP! Agora tenho uma missão para você!",
+            "Sua entrada no grupo VIP foi confirmada! Agora, preciso que você faça algo importante!",
+            "Você está oficialmente no grupo VIP! Mas antes de começarmos, preciso que você complete uma tarefa.",
+            "Sua participação no grupo VIP foi confirmada! Agora, preciso que você fique atento!"
+        ],
+        [
+            "Todos os dias o link do sorteio grátis será alterado, então fique atento ao grupo! Sempre enviaremos tudo por lá!",
+            "O link do sorteio grátis muda diariamente, então fique ligado no grupo! Enviaremos tudo por lá!",
+            "Lembre-se, o link do sorteio grátis é atualizado todos os dias, então fique de olho no grupo! Enviaremos tudo por lá!",
+            "O link do sorteio grátis é alterado diariamente, então fique atento ao grupo! Enviaremos tudo por lá!",
+            "O link do sorteio grátis muda todos os dias, então fique ligado no grupo!"
+        ],
+        [
+            "Lembrando que sair do grupo não te garante o prêmio, então fique atento!",
+            "Atenção: sair do grupo te desclassifica do sorteio, então fique por lá!",
+            "Importante: se você sair do grupo, não poderá participar do sorteio, então fique atento!",
+            "Se você sair do grupo, não poderá participar do sorteio, então fique atento!",
+            "Lembre-se: sair do grupo te desclassifica do sorteio, então fique atento!"
+        ],
+        [
+            "Obrigado e boa sorte! 🍀",
+            "Agradecemos e desejamos boa sorte! 🍀",
+            "Obrigado por fazer parte da nossa comunidade VIP! Boa sorte! 🍀",
+            "Agradecemos por se juntar a nós! Boa sorte! 🍀"
+        ]
+    ]
 }
